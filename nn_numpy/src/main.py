@@ -43,10 +43,3 @@ trainer.run()
 filename = "data/nn_params.json"
 paramsHandler = JsonParams(filename)
 trainer.saveParams(filename)
-
-layersR = [Linear(784, 50), ReLU(), Linear(50, 10), Softmax()]
-layersR = paramsHandler.loadParamsIntoLayers(layersR)
-
-modelR = Model(layers = layersR, cost = cost)
-p = modelR.predict(norm_trn_pixels[:2])
-print(np.argmax(p, axis = 1))

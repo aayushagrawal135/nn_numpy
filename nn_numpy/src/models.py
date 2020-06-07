@@ -1,7 +1,8 @@
 import numpy as np
+from functions import CrossEntropy
 
 class Model():
-    def __init__(self, layers, cost):
+    def __init__(self, layers, cost = CrossEntropy()):
         self.layers = layers
         self.cost = cost
 
