@@ -12,7 +12,7 @@ from plot_functions import *
 # The data has been taken from below
 # Set appropriate path in your local or run on kaggle itself with the jupyter notebook present 
 # https://www.kaggle.com/oddrationale/mnist-in-csv
-train_path = "data/mnist_train.csv"
+train_path = "../data/mnist_train.csv"
 data = pd.read_csv(train_path)
 
 pixels, labels = featLabelSep(data)
@@ -40,6 +40,6 @@ trainer.setEpochs(20)
 trainer.setLearningRate(1)
 trainer.run()
 
-filename = "data/nn_params.json"
+filename = "../data/nn_params.json"
 paramsHandler = JsonParams(filename)
 trainer.saveParams(filename)

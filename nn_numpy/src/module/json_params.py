@@ -3,7 +3,7 @@ from functions import *
 
 class JsonParams():
     def __init__(self, filename = None):
-        self.filename = filename or "nn_params.json"
+        self.filename = filename or "../data/nn_params.json"
 
     def dumpParamsInJson(self, model):
         params = dict()
