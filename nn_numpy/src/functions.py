@@ -2,8 +2,17 @@ import numpy as np
 
 class Linear():
     def __init__(self, n_input, n_output):
-        self.weights = np.random.randn(n_input, n_output)
+        np.random.seed(42)
+        self.weights = np.random.randn(n_input, n_output) * np.sqrt(2/n_input)
         self.bias = np.zeros(n_output)
+        
+    def setWeights(self, weights = None):
+        if weights is not None:
+            self.weights = weights
+            
+    def setBias(self, bias = None):
+        if bias is not None:
+            self.bias = bias
 
     def forward(self, x):
         self.old_x = x
@@ -34,8 +43,7 @@ class Linear():
         # n_inputs number of "outputs" in its layer, which will form (n_samples, n_outputs) for that layer
         return np.dot(grad, self.weights.transpose())
 
-    @property
-    def name(self):
+    def __repr__(self):
         n_input, n_output = np.shape(self.weights)
         return f"Linear ({n_input},{n_output})"
 
@@ -48,21 +56,20 @@ class ReLU():
     def backward(self, grad):
         return np.where(self.old_x > 0, grad, 0)
 
-    @property
-    def name(self):
+    def __repr__(self):
         return "ReLU"
 
 
 class Softmax():
     def forward(self, x):
+        x = x - np.reshape(np.max(x, axis = 1), (-1, 1))
         self.old_y = np.exp(x) / (np.exp(x).sum(axis=1)[:, None])
         return self.old_y
 
     def backward(self, grad):
         return self.old_y * (grad - (grad * self.old_y).sum(axis=1)[:, None])
 
-    @property
-    def name(self):
+    def __repr__(self):
         return "Softmax"
 
 
@@ -75,6 +82,17 @@ class CrossEntropy():
     def backward(self):
         return np.where(self.old_y == 1, -1 / self.old_x, 0)
 
-    @property
-    def name(self):
+    def __repr__(self):
         return "Cross-Entropy"
+
+class Sigmoid():
+    def forward(self, x):
+        self.old_y = np.exp(x)/(1. + np.exp(x))
+        return self.old_y
+    
+    def backward(self, grad):
+        differentiation = self.old_y * (1 - self.old_y)
+        return differentiation * grad
+    
+    def __repr__(self):
+        return "Sigmoid"
