@@ -6,16 +6,21 @@ import json
 from functions import *
 from models import *
 from metrics import *
+from json_params import *
 
 # The data has been taken from below
 # Set appropriate path in your local or run on kaggle itself with the jupyter notebook present 
 # https://www.kaggle.com/oddrationale/mnist-in-csv
 
 train_path = "mnist_train.csv"
-
 data = pd.read_csv(train_path)
-labels = data.iloc[:, 0:1].to_numpy()
-pixels = data.iloc[:, 1:].to_numpy()
+
+def featLabelSep(data):
+    labels = data.iloc[:, 0:1].to_numpy()
+    pixels = data.iloc[:, 1:].to_numpy()
+    return pixels, labels
+
+pixels, labels = featLabelSep(data)
 
 def oneHotEncode(labels):
     rows = np.shape(labels)[0]
@@ -73,40 +78,15 @@ def train(model, inputs, labels, epochs=1, learning_rate=0.1):
 
 train(model = model, inputs = norm_trn_pixels, labels = oneHotEncode(trn_labels), epochs = epochs)
 
-def dumpParamsInJson(model):
-    params = dict()
-    filename = "nn_params.json"
-
-    for layer in model.layers:
-        if type(layer) is Linear:
-            params[f"{layer}_weights"] = layer.weights.tolist()
-            params[f"{layer}_bias"] = layer.bias.tolist()
-            
-    with open(filename, "w") as file:
-        json.dump(params, file)
-    
-    return params 
-
-dumpParamsInJson(model)
-
-def loadParamsIntoLayers(filename, layers):
-
-    with open(filename, "r") as file:
-        params = json.load(file)
-    
-    for layer in layers:
-        if type(layer) is Linear:
-            key_weight = f"{layer}_weights"
-            key_bias = f"{layer}_bias"
-            layer.setWeights(np.array(params[key_weight]))
-            layer.setBias(np.array(params[key_bias]))
-    
-    return layers
 
 filename = "nn_params.json"
-layersR = [Linear(784, 20), ReLU(), Linear(20, 10), Softmax()]
-layersR = loadParamsIntoLayers(filename, layers)
+paramsHandler = JsonParams(filename)
+
+paramsHandler.dumpParamsInJson(model)
+
+layersR = [Linear(784, 50), ReLU(), Linear(50, 10), Softmax()]
+layersR = paramsHandler.loadParamsIntoLayers(layersR)
 
 modelR = Model(layers = layersR, cost = cost)
-
 p = modelR.predict(norm_trn_pixels[:2])
+print(np.argmax(p, axis = 1))
